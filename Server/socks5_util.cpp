@@ -1,29 +1,41 @@
 
 #include "socks5_util.h"
 
+char* METHOD_TO_STRING( unsigned int m )
+{
+	char *s = NULL;
 
+	switch(m)
+	{
+		case METHOD_NO_AUTH:  s = "METHOD_NO_AUTH"; break;
+		case METHOD_GSSAPI:   s = "METHOD_GSSAPI"; break;
+		case METHOD_USERPASS: s = "METHOD_USERPASS"; break;
+		case METHOD_NOACCEPT: s = "METHOD_NOACCEPT"; break;
+		default:
+			if( m >= 0x80 ) s = "METHOD_PRIVATE";
+			else s = "METHOD_IANA_ASSIGNED";
+	};
+
+	return s;
+}
 
 void print_client_version_pkt( client_version_pkt *pkt )
 {
-	printf("Printing client version packet...\n");
+	printf("[+]	Printing client version packet...\n");
 	printf("ver = %d\nnmethods = %d\nmethods = ",(int)pkt->ver,(int)pkt->nmethods);
 	for(int i = 0; i < pkt->nmethods; ++i) 
-		{
-			printf(" %d",pkt->methods[i]);
-			switch( pkt->methods[i] )
-			{
-				case METHOD_NO_AUTH: printf("(METHOD_NO_AUTH)"); break;
-				case METHOD_GSSAPI: printf("(METHOD_GSSAPI)"); break;
-				case METHOD_USERPASS: printf("(METHOD_USERPASS)"); break;
-				case METHOD_NOACCEPT: printf("METHOD_NOACCEPT"); break;
-				default:
-					if( pkt->methods[i] >= 0x80 ) printf("(PRIVATE)");
-					else printf("(IANA ASSIGNED)");
-			};
-
-		}
+			printf(" %d(%s)",pkt->methods[i],METHOD_TO_STRING(pkt->methods[i]));
+		
 	printf("\n\n");
 }
+
+
+void print_server_method_pkt( server_method_pkt *pkt )
+{
+	printf("[+]Printing Server Method Packet\nVer: %d\nMethod: %d(%s)\n\n",
+		pkt->ver,pkt->method,METHOD_TO_STRING(pkt->method));
+}
+
 
 
 
@@ -59,3 +71,14 @@ client_version_pkt* recv_client_version_pkt( SOCKET s )
 }
 
 
+
+bool send_server_method_pkt( SOCKET s, BYTE ver, BYTE method )
+{
+	int bytes_sent = 0;
+	server_method_pkt pkt;
+	pkt.ver = ver;
+	pkt.method = method;
+
+	bytes_sent = send(s,(char*)&pkt,sizeof(server_method_pkt),0);
+	return (bytes_sent == sizeof(server_method_pkt));
+}
