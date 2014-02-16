@@ -39,6 +39,25 @@ void print_server_method_pkt( server_method_pkt *pkt )
 
 
 
+client_request_pkt* recv_client_request_pkt( SOCKET s )
+{
+	int b1,b2;
+	b1 = b2 = 0;
+
+	if( s == INVALID_SOCKET ) return NULL;
+
+	client_request_pkt *cr_pkt = (client_request_pkt*)malloc(sizeof(client_request_pkt));
+
+	if( cr_pkt )
+	{
+		memset(cr_pkt,0,sizeof(client_request_pkt));
+		b1 = recv(s,(char*)cr_pkt);
+	}
+
+	return cr_pkt;
+
+}
+
 
 client_version_pkt* recv_client_version_pkt( SOCKET s )
 {
@@ -48,10 +67,10 @@ client_version_pkt* recv_client_version_pkt( SOCKET s )
 	if( s == INVALID_SOCKET ) return NULL;
 
 	client_version_pkt *cv_pkt = (client_version_pkt*)malloc(sizeof(client_version_pkt));
-	memset(cv_pkt,0,sizeof(client_version_pkt));
 
 	if( cv_pkt )
 	{
+		memset(cv_pkt,0,sizeof(client_version_pkt));	
 		b1 = recv(s,(char*)&cv_pkt->ver,1,0);
 		b2 = recv(s,(char*)&cv_pkt->nmethods,1,0);
 

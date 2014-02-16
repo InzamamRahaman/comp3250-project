@@ -1,5 +1,4 @@
 
-
 #ifndef _SOCKS5_UTIL_H_
 #define _SOCKS5_UTIL_H_
 
@@ -15,7 +14,7 @@ typedef unsigned int SOCKET;
 
 //SIZE CONSTANTS
 #define MAX_METHODS 255
-#define MAX_FQDN_LEN 1024
+#define MAX_FQDN_LEN 255
 
 //AUTHENTICATION METHODS
 #define METHOD_NO_AUTH		0x0
@@ -23,6 +22,36 @@ typedef unsigned int SOCKET;
 #define METHOD_USERPASS		0x02
 #define METHOD_NOACCEPT		0xFF
 
+//ADDR TYPES
+#define ADDR_IPV4 0x01
+#define ADDR_FQDN 0x03
+#define ADDR_IPV6 0x04
+
+
+/*
+o  REP    Reply field:
+     o  X'00' succeeded
+     o  X'01' general SOCKS server failure
+     o  X'02' connection not allowed by ruleset
+     o  X'03' Network unreachable
+     o  X'04' Host unreachable
+     o  X'05' Connection refused
+     o  X'06' TTL expired
+     o  X'07' Command not supported
+     o  X'08' Address type not supported
+     o  X'09' to X'FF' unassigned
+*/
+
+//REPLY TYPES
+#define REPLY_SUCCESS 0x00
+#define REPLY_FAILURE 0x01
+#define REPLY_NOALLOW 0x02
+#define REPLY_NONETREACH 0x03
+#define REPLY_NOHOSTREACH 0x04
+#define REPLY_CONNREFUSED 0x05
+#define REPLY_TTLEXP 0x06
+#define REPLY_NOCOMMAND 0x07
+#define REPLY_NOADDR 0x08
 
 /*
 The structures are declared with __attribute((packed)) to ensure
@@ -47,7 +76,7 @@ struct server_method_pkt
 }  __attribute__((packed));
 
 
-struct socks_request_pkt
+struct client_request_pkt
 {
 	BYTE ver;
 	BYTE cmd;
@@ -71,9 +100,33 @@ struct socks_request_pkt
 
 
 
+
+struct server_reply_pkt
+{
+	BYTE ver;
+	BYTE reply;
+	BYTE reserved;
+	BYTE addr_type;
+
+	/*
+	This variable doesn't necessarily
+	have to contain a fully qualified
+	domain name. It can also contain either
+	an ipv4	address or an ipv6 address.
+	MAX_FQDN_LEN+1 is guaranteed to be
+	large enough to hold an of the 3
+	possible address types.
+	*/
+	BYTE addr[MAX_FQDN_LEN+1]; //IPV6 NOT CURRENTLY SUPPORTED  
+
+	ushort port;
+
+} __attribute__((packed));
+
+
 char* METHOD_TO_STRING( unsigned int m );
 
-
+client_request_pkt* recv_client_request_pkt( SOCKET s ); /*TODO*/
 client_version_pkt* recv_client_version_pkt( SOCKET s );
 
 /*
@@ -83,10 +136,15 @@ sent is equal to the size of a server_method_pkt
 */
 bool send_server_method_pkt( SOCKET s, BYTE ver, BYTE method );
 
+bool send_server_reply_pkt( SOCKET s, BYTE ver, BYTE reply, BYTE addr_type, BYTE *addr , int addr_len ,ushort port ); /*TODO*/
+
 
 void print_client_version_pkt( client_version_pkt *pkt );
-
 void print_server_method_pkt( server_method_pkt *pkt );
+void print_client_request_pkt( client_request_pkt *pkt ); /*TODO*/
+void print_server_reply_pkt( server_reply_pkt *pkt ); /*TODO*/
+
+
 
 
 

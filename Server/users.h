@@ -1,11 +1,16 @@
-//this sturct stores the information about users(mimicks the database cloumns)
-struct proxy_server_users
+
+
+
+#define HASH_LEN 40 //this can be changed when we decide on what we're going to use
+#define USERNAME_MAX_LEN 50
+#define EMAIL_MAX_LEN 254
+
+struct user
 {
        int id;
-       char username[50];
-       char password[200];
-       char fname[50];
-       char lname[60];
-       int age;
-       char country[50];
+       char username[USERNAME_MAX_LEN+1];
+       char password_hash[HASH_LEN+1];
+       char *first_name;
+       char *last_name;
+       char *email[EMAIL_MAX_LEN+1];
 };
