@@ -13,14 +13,24 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned int SOCKET;
 
+//SIZE CONSTANTS
 #define MAX_METHODS 255
 #define MAX_FQDN_LEN 1024
 
-
+//AUTHENTICATION METHODS
 #define METHOD_NO_AUTH		0x0
 #define METHOD_GSSAPI 		0x01
 #define METHOD_USERPASS		0x02
 #define METHOD_NOACCEPT		0xFF
+
+
+/*
+The structures are declared with __attribute((packed)) to ensure
+that there is no padding anywhere from the start of the first member
+to the end of the last member. This allows for structures to
+be sent and received in their entirety with just one call to
+send() or recv().
+*/
 
 struct client_version_pkt
 {
@@ -43,9 +53,23 @@ struct socks_request_pkt
 	BYTE cmd;
 	BYTE reserved;
 	BYTE addr_type;
-	BYTE addr[MAX_FQDN_LEN+1];
+
+	/*
+	This variable doesn't necessarily
+	have to contain a fully qualified
+	domain name. It can also contain either
+	an ipv4	address or an ipv6 address.
+	MAX_FQDN_LEN+1 is guaranteed to be
+	large enough to hold an of the 3
+	possible address types.
+	*/
+	BYTE addr[MAX_FQDN_LEN+1]; //IPV6 NOT CURRENTLY SUPPORTED  
+
+	ushort port;
 
 } __attribute__((packed));
+
+
 
 char* METHOD_TO_STRING( unsigned int m );
 
