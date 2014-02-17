@@ -7,6 +7,9 @@
 #include <cstdlib>
 #include <winsock2.h>
 
+#define _DEBUG_
+
+
 typedef unsigned char BYTE;
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -15,6 +18,8 @@ typedef unsigned int SOCKET;
 //SIZE CONSTANTS
 #define MAX_METHODS 255
 #define MAX_FQDN_LEN 255
+
+#define SERVER_VERSION 0x05
 
 //AUTHENTICATION METHODS
 #define METHOD_NO_AUTH		0x0
@@ -26,6 +31,16 @@ typedef unsigned int SOCKET;
 #define ADDR_IPV4 0x01
 #define ADDR_FQDN 0x03
 #define ADDR_IPV6 0x04
+
+//ADDR TYPE LENGTHS
+#define ADDR_IPV4_LEN 0x04
+#define ADDR_IPV6_LEN 0x10
+
+
+//COMMANDS
+#define CMD_CONNECT 0x01
+#define CMD_BIND 0x02
+#define CMD_UDPASSOC 0x03
 
 
 /*
@@ -125,8 +140,11 @@ struct server_reply_pkt
 
 
 char* METHOD_TO_STRING( unsigned int m );
+char* REPLY_TO_STRING( unsigned int r ); 
+char* ADDRTYPE_TO_STRING( unsigned int a );
+char* CMD_TO_STRING( unsigned int c );
 
-client_request_pkt* recv_client_request_pkt( SOCKET s ); /*TODO*/
+client_request_pkt* recv_client_request_pkt( SOCKET s );
 client_version_pkt* recv_client_version_pkt( SOCKET s );
 
 /*
@@ -141,12 +159,7 @@ bool send_server_reply_pkt( SOCKET s, BYTE ver, BYTE reply, BYTE addr_type, BYTE
 
 void print_client_version_pkt( client_version_pkt *pkt );
 void print_server_method_pkt( server_method_pkt *pkt );
-void print_client_request_pkt( client_request_pkt *pkt ); /*TODO*/
+void print_client_request_pkt( client_request_pkt *pkt );
 void print_server_reply_pkt( server_reply_pkt *pkt ); /*TODO*/
-
-
-
-
-
 
 #endif

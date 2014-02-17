@@ -41,6 +41,9 @@ int main()
 	if( cv_pkt == NULL ) printf("Failed to receive client version packet! with error: %d\n",WSAGetLastError());
 	else print_client_version_pkt(cv_pkt);
 
+	if ( !send_server_method_pkt(c,SERVER_VERSION,cv_pkt->methods[0]) ) printf("FAILED TO SEND SERVER METHOD PACKET!\n");
+
+
 	WSACleanup();
 	return 0;
 }
