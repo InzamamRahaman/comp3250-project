@@ -44,6 +44,9 @@ int main()
 	if ( !send_server_method_pkt(c,SERVER_VERSION,cv_pkt->methods[0]) ) printf("FAILED TO SEND SERVER METHOD PACKET!\n");
 
 
+	client_request_pkt* cr_pkt = recv_client_request_pkt(c);
+	print_client_request_pkt(cr_pkt);
+
 	WSACleanup();
 	return 0;
 }

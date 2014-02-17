@@ -166,7 +166,7 @@ void print_server_reply_pkt( server_reply_pkt *pkt ); /*TODO*/
 
 client_request_pkt* recv_client_request_pkt( SOCKET s )
 {
-	int b1,b2,b3,b4,rlen;
+	int b1,b2,b3,b4,b5,rlen;
 	b1 = b2 = b3 = b4 = 0;
 
 	if( s == INVALID_SOCKET ) return NULL;
@@ -209,12 +209,16 @@ client_request_pkt* recv_client_request_pkt( SOCKET s )
 			};
 		}
 
-		if( b1 != 1 || b2!=b1 || b3 != b1 || b4 != rlen )
+		b5 = recv(s,(char*)&cr_pkt->port,2,0);
+
+		if( b1!=1 || b2!=1 || b3!=1 || b4 != rlen || b5 != 2 )
 		{
 			//ERROR
 			free(cr_pkt);
 			cr_pkt = NULL;
 		}
+
+		cr_pkt->port = ntohs(cr_pkt->port);
 	}
 
 	return cr_pkt;
